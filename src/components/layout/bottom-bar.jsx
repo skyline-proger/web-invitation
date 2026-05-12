@@ -1,4 +1,3 @@
-// src/components/bottom-bar/BottomBar.jsx
 import React, { useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Home, CalendarHeart, MapPin, MessageCircleHeart } from "lucide-react";
@@ -12,27 +11,10 @@ const baseMenuItems = [
   { icon: MessageCircleHeart, label: "Тілек", href: "#wishes", id: "wishes" },
 ];
 
-/**
- * BottomBar is a React functional component that renders a fixed bottom navigation bar
- * with automatic section detection based on scroll position.
- *
- * This component uses Framer Motion to animate its entrance and the Intersection Observer API
- * to automatically detect which section is currently in view. It provides smooth transitions
- * for opacity and vertical movement, and highlights the active section based on scroll position.
- * The component also supports manual navigation by clicking on menu items.
- *
- * @component
- * @example
- * // Basic usage:
- * <BottomBar />
- *
- * @returns {JSX.Element} A JSX element containing the animated bottom navigation bar with auto-detection.
- */
 const BottomBar = () => {
   const config = useConfig();
   const [active, setActive] = React.useState("home");
 
-  // Filter menu items based on config - hide gifts when no banks configured
   const menuItems = useMemo(() => {
     const hasBanks = config?.banks && config.banks.length > 0;
     return baseMenuItems.filter((item) => {
@@ -43,15 +25,11 @@ const BottomBar = () => {
     });
   }, [config?.banks]);
 
-  // Function to handle smooth scrolling when clicking menu items
   const handleMenuClick = useCallback((e, href, id) => {
     e.preventDefault();
     const element = document.querySelector(href);
     if (element) {
-      // Temporarily set active state for immediate feedback
       setActive(id);
-
-      // Smooth scroll to element
       element.scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -59,11 +37,10 @@ const BottomBar = () => {
     }
   }, []);
 
-  // Set up Intersection Observer for automatic section detection
   useEffect(() => {
     const observerOptions = {
-      root: null, // Use viewport as root
-      rootMargin: "-20% 0px -80% 0px", // Trigger when section is 20% visible from top
+      root: null,
+      rootMargin: "-20% 0px -80% 0px",
       threshold: 0,
     };
 
@@ -71,8 +48,6 @@ const BottomBar = () => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const sectionId = entry.target.id;
-
-          // Only update if it's a valid menu section
           const validSection = menuItems.find((item) => item.id === sectionId);
           if (validSection) {
             setActive(sectionId);
@@ -86,7 +61,6 @@ const BottomBar = () => {
       observerOptions,
     );
 
-    // Observe all sections that correspond to menu items
     menuItems.forEach((item) => {
       const element = document.getElementById(item.id);
       if (element) {
@@ -94,7 +68,6 @@ const BottomBar = () => {
       }
     });
 
-    // Cleanup observer on component unmount
     return () => {
       observer.disconnect();
     };
@@ -108,7 +81,8 @@ const BottomBar = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
       >
-        <div className="backdrop-blur-md bg-white/90 border border-gray-200/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.07)] px-3 py-2">
+        {/* Заменили bg-white на bg-background/90 и border-gray-200 на border-border */}
+        <div className="backdrop-blur-md bg-background/90 border border-border rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.1)] px-3 py-2">
           <nav className="flex items-center gap-1">
             {menuItems.map((item) => (
               <motion.a
@@ -116,10 +90,11 @@ const BottomBar = () => {
                 href={item.href}
                 className={cn(
                   "flex flex-col items-center justify-center py-2 px-2 rounded-xl transition-all duration-300 ease-in-out",
-                  "hover:bg-gray-50/80 cursor-pointer min-w-[60px]",
+                  // Заменили hover на более мягкий bg-accent/50
+                  "hover:bg-accent/50 cursor-pointer min-w-[60px]",
                   active === item.id
                     ? "text-primary bg-primary/5"
-                    : "text-gray-600",
+                    : "text-muted-foreground",
                 )}
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.95 }}
@@ -134,18 +109,20 @@ const BottomBar = () => {
                   <item.icon
                     className={cn(
                       "h-[18px] w-[18px] sm:h-5 sm:w-5 mb-0.5 sm:mb-1 transition-all duration-300",
+                      // Заменили stroke-rose-500 на stroke-primary
                       active === item.id
-                        ? "stroke-rose-500 stroke-[2.5px]"
-                        : "stroke-gray-600 stroke-2",
+                        ? "stroke-primary stroke-[2.5px]"
+                        : "stroke-muted-foreground stroke-2",
                     )}
                   />
                 </motion.div>
                 <motion.span
                   className={cn(
                     "text-[10px] sm:text-xs font-medium transition-all duration-300 line-clamp-1",
+                    // Заменили text-rose-500 на text-primary
                     active === item.id
-                      ? "text-rose-500 font-semibold"
-                      : "text-gray-600",
+                      ? "text-primary font-bold"
+                      : "text-muted-foreground",
                   )}
                   animate={{
                     scale: active === item.id ? 1.05 : 1,

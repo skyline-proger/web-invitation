@@ -6,11 +6,10 @@ import { formatEventDate } from "@/lib/format-event-date";
 import { getGuestName } from "@/lib/invitation-storage";
 
 export default function Hero() {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const config = useConfig(); 
   const [guestName, setGuestName] = useState("");
 
   useEffect(() => {
-    // Get guest name from localStorage
     const storedGuestName = getGuestName();
     if (storedGuestName) {
       setGuestName(storedGuestName);
@@ -49,12 +48,14 @@ export default function Hero() {
             key={interval}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="flex flex-col items-center p-3 bg-white/80 backdrop-blur-sm rounded-xl border border-rose-100"
+            // Поменяли границу на нейтральную
+            className="flex flex-col items-center p-3 bg-background/80 backdrop-blur-sm rounded-xl border border-border shadow-sm"
           >
-            <span className="text-xl sm:text-2xl font-bold text-rose-600">
+            {/* Число теперь основного цвета (черное) */}
+            <span className="text-xl sm:text-2xl font-bold text-primary">
               {timeLeft[interval]}
             </span>
-            <span className="text-xs text-gray-500 capitalize">{interval}</span>
+            <span className="text-xs text-muted-foreground capitalize">{interval}</span>
           </motion.div>
         ))}
       </div>
@@ -65,12 +66,13 @@ export default function Hero() {
     const [hearts] = useState(() =>
       [...Array(8)].map((_, i) => ({
         size: Math.floor(Math.random() * 2) + 8,
+        // Сделали сердечки в стиле нуар: черные, серые и прозрачные
         color:
           i % 3 === 0
-            ? "text-rose-400"
+            ? "text-primary"
             : i % 3 === 1
-              ? "text-pink-400"
-              : "text-red-400",
+              ? "text-muted-foreground"
+              : "text-muted/50",
         initialX:
           typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
         animateX:
@@ -90,13 +92,13 @@ export default function Hero() {
               y: typeof window !== "undefined" ? window.innerHeight : 0,
             }}
             animate={{
-              opacity: [0, 1, 1, 0],
+              opacity: [0, 0.4, 0.4, 0],
               scale: [0, 1, 1, 0.5],
               x: heart.animateX,
               y: -100,
             }}
             transition={{
-              duration: 4,
+              duration: 6,
               repeat: Infinity,
               delay: i * 0.8,
               ease: "easeOut",
@@ -121,7 +123,7 @@ export default function Hero() {
     <>
       <section
         id="home"
-        className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden"
+        className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden bg-background"
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -135,7 +137,8 @@ export default function Hero() {
             transition={{ delay: 0.2 }}
             className="inline-block mx-auto"
           >
-            <span className="px-4 py-1 text-sm bg-rose-50 text-rose-600 rounded-full border border-rose-200">
+            {/* Значок стал строгим: черный текст на сером фоне */}
+            <span className="px-4 py-1 text-xs tracking-widest uppercase bg-secondary text-primary rounded-full border border-border">
               Бұл Маңызды Күнді Есте Сақтаңыз
             </span>
           </motion.div>
@@ -145,7 +148,7 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-gray-500 font-light italic text-base sm:text-lg"
+              className="text-muted-foreground font-light italic text-base sm:text-lg"
             >
               Құда-жұрт құрмалы Бізде Сінеген Өнеге Ұстау Табыс Ет
             </motion.p>
@@ -153,7 +156,8 @@ export default function Hero() {
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-3xl sm:text-5xl font-serif bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-pink-600"
+              // Убрали розовый градиент на тексте, оставили строгий черный
+              className="text-4xl sm:text-6xl font-serif text-foreground tracking-tight"
             >
               {config.groomName} & {config.brideName}
             </motion.h2>
@@ -165,11 +169,13 @@ export default function Hero() {
             transition={{ delay: 0.8 }}
             className="relative max-w-md mx-auto"
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-rose-50/50 to-white/50 backdrop-blur-md rounded-2xl" />
+            {/* Подложка теперь просто белая с блюром */}
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-md rounded-2xl" />
 
-            <div className="relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-rose-100/50">
+            <div className="relative px-4 sm:px-8 py-8 sm:py-10 rounded-2xl border border-border">
+              {/* Линии-разделители стали темно-серыми */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-px">
-                <div className="w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent" />
+                <div className="w-20 sm:w-32 h-[1px] bg-border" />
               </div>
 
               <div className="space-y-6 text-center">
@@ -180,8 +186,8 @@ export default function Hero() {
                     transition={{ delay: 0.9 }}
                     className="flex items-center justify-center space-x-2"
                   >
-                    <Calendar className="w-4 h-4 text-rose-400" />
-                    <span className="text-gray-700 font-medium text-sm sm:text-base">
+                    <Calendar className="w-4 h-4 text-primary" />
+                    <span className="text-foreground font-medium text-sm sm:text-base">
                       {formatEventDate(config.date, "full")}
                     </span>
                   </motion.div>
@@ -192,17 +198,17 @@ export default function Hero() {
                     transition={{ delay: 1 }}
                     className="flex items-center justify-center space-x-2"
                   >
-                    <Clock className="w-4 h-4 text-rose-400" />
-                    <span className="text-gray-700 font-medium text-sm sm:text-base">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span className="text-foreground font-medium text-sm sm:text-base">
                       {config.time}
                     </span>
                   </motion.div>
                 </div>
 
                 <div className="flex items-center justify-center gap-3">
-                  <div className="h-px w-8 sm:w-12 bg-rose-200/50" />
-                  <div className="w-2 h-2 rounded-full bg-rose-200" />
-                  <div className="h-px w-8 sm:w-12 bg-rose-200/50" />
+                  <div className="h-px w-8 sm:w-12 bg-border" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  <div className="h-px w-8 sm:w-12 bg-border" />
                 </div>
 
                 <motion.div
@@ -211,25 +217,23 @@ export default function Hero() {
                   transition={{ delay: 1.1 }}
                   className="space-y-2"
                 >
-                  <p className="text-gray-500 font-serif italic text-sm">
+                  <p className="text-muted-foreground font-serif italic text-sm">
                     Құрметті
                   </p>
-                  <p className="text-gray-600 font-medium text-sm">
+                  <p className="text-muted-foreground font-medium text-sm">
                     Ажыны/Апа/Іні/Қарындас
                   </p>
-                  <p className="text-rose-500 font-semibold text-lg">
+                  {/* Имя гостя — главный акцент */}
+                  <p className="text-primary font-bold text-xl uppercase tracking-wider">
                     {guestName || "Шақырылған Қонақ"}
                   </p>
                 </motion.div>
               </div>
 
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-px">
-                <div className="w-20 sm:w-32 h-[2px] bg-gradient-to-r from-transparent via-rose-200 to-transparent" />
+                <div className="w-20 sm:w-32 h-[1px] bg-border" />
               </div>
             </div>
-
-            <div className="absolute -top-2 -right-2 w-16 sm:w-24 h-16 sm:h-24 bg-rose-100/20 rounded-full blur-xl" />
-            <div className="absolute -bottom-2 -left-2 w-16 sm:w-24 h-16 sm:h-24 bg-rose-100/20 rounded-full blur-xl" />
           </motion.div>
 
           <CountdownTimer targetDate={config.date} />
@@ -239,7 +243,6 @@ export default function Hero() {
             <motion.div
               animate={{
                 scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0],
               }}
               transition={{
                 duration: 2,
@@ -247,8 +250,9 @@ export default function Hero() {
                 ease: "easeInOut",
               }}
             >
+              {/* Главное сердце внизу — теперь черное */}
               <Heart
-                className="w-10 sm:w-12 h-10 sm:h-12 text-rose-500 mx-auto"
+                className="w-10 sm:w-12 h-10 sm:h-12 text-primary mx-auto"
                 fill="currentColor"
               />
             </motion.div>

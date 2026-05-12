@@ -1,7 +1,6 @@
-// EventCard.jsx
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, MapPin, CalendarPlus, X, Chrome } from "lucide-react";
+import { Clock, MapPin, CalendarPlus, X, Chrome } from "lucide-react";
 import { formatEventDate } from "@/lib/format-event-date";
 
 const Modal = ({ isOpen, onClose, children }) => {
@@ -9,166 +8,125 @@ const Modal = ({ isOpen, onClose, children }) => {
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Фон (Backdrop) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-[60]"
           />
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] w-[90%] max-w-sm"
-          >
-            <div className="bg-white transform -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 shadow-2xl border border-gray-100">
+          
+          {/* Контейнер-обертка для центрирования */}
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-2xl p-6 shadow-2xl border border-gray-200 w-full max-w-sm pointer-events-auto"
+            >
               {children}
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
   );
 };
 
-const CalendarButton = ({ icon: Icon, label, onClick, className = "" }) => (
-  <motion.button
-    onClick={onClick}
-    className={`flex items-center space-x-3 w-full p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors ${className}`}
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-  >
-    <Icon className="w-5 h-5" />
-    <span className="text-gray-700 font-medium">{label}</span>
-  </motion.button>
-);
-
-/**
- * SingleEventCard component displays an event card with options to add the event
- * to various calendars (Google Calendar, Apple Calendar, and Outlook Calendar).
- *
- * @component
- * @param {Object} props - Component props.
- * @param {Object} props.eventData - Object containing event data.
- * @param {string} props.eventData.date - The date of the event (expected format: YYYY-MM-DD).
- * @param {string} props.eventData.startTime - The start time of the event (expected format: HH:mm).
- * @param {string} props.eventData.endTime - The end time of the event (expected format: HH:mm).
- * @param {string} props.eventData.title - The title of the event.
- * @param {string} props.eventData.description - A description of the event.
- * @param {string} props.eventData.location - The location where the event takes place.
- * @param {string} props.eventData.timeZone - The time zone of the event.
- *
- * @example
- * const eventData = {
- *   date: '2023-10-15',
- *   startTime: '14:00',
- *   endTime: '16:00',
- *   title: 'Wedding Ceremony - Reception',
- *   description: 'Join us to celebrate the wedding ceremony and reception.',
- *   location: 'Sunset Gardens',
- *   timeZone: 'Asia/Jakarta'
- * };
- *
- * <SingleEventCard eventData={eventData} />
- *
- * @returns {JSX.Element} A JSX element representing the event card.
- */
-const SingleEventCard = ({ eventData }) => {
+const SingleEventCard = ({ eventData, index }) => {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
 
   const googleCalendarLink = () => {
     const startDate = new Date(`${eventData.date}T${eventData.startTime}:00`);
     const endDate = new Date(`${eventData.date}T${eventData.endTime}:00`);
-
-    const formatDate = (date) => {
-      return date.toISOString().replace(/-|:|\.\d+/g, "");
-    };
-
+    const formatDate = (date) => date.toISOString().replace(/-|:|\.\d+/g, "");
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventData.title)}&dates=${formatDate(startDate)}/${formatDate(endDate)}&details=${encodeURIComponent(eventData.description)}&location=${encodeURIComponent(eventData.location)}&ctz=${eventData.timeZone}`;
   };
 
   return (
-    <div className="relative">
+    <div className={`relative flex items-start group mb-16 md:mb-24 ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+      {/* Время — теперь висит в воздухе */}
+      <div className="hidden md:block w-[42%] px-8 text-right group-odd:text-left">
+        <motion.span 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="text-4xl font-serif font-light tracking-tighter text-primary/80"
+        >
+          {eventData.startTime?.substring(0, 5)}
+        </motion.span>
+      </div>
+
+      {/* Центральная точка */}
+      <div className="relative flex items-center justify-center w-4 h-4 mt-2 md:mt-4 z-10 shrink-0 
+        absolute left-4 md:left-1/2 -translate-x-1/2">
+        <div className="w-full h-full rounded-full bg-primary animate-pulse" />
+        <div className="absolute w-8 h-8 rounded-full border border-primary/20 scale-150" />
+      </div>
+
+      {/* Контент — БЕЗ БЛОКА (прозрачный фон) */}
       <motion.div
-        className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        className="w-full pl-12 md:pl-0 md:w-[42%] md:px-8"
+        initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
       >
-        <div className="flex justify-between items-center">
-          <h3 className="text-xl font-semibold text-gray-800">
-            {eventData.title.split(" - ")[0]}
-          </h3>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-rose-500 hover:text-rose-600 transition-colors"
-            onClick={() => setShowCalendarModal(true)}
-          >
-            <CalendarPlus className="w-5 h-5" />
-          </motion.button>
+        <div className="flex items-center gap-3 mb-2 md:hidden">
+          <span className="text-2xl font-serif font-bold text-primary">
+            {eventData.startTime?.substring(0, 5)}
+          </span>
         </div>
-        <div className="space-y-3 text-gray-600">
-          <div className="flex items-center space-x-3">
-            <Calendar className="w-5 h-5 text-rose-500" />
-            <span>{formatEventDate(eventData.date)}</span>
+
+        <h3 className="text-xl md:text-2xl font-serif text-foreground mb-3 leading-tight tracking-wide">
+          {eventData.title.split(" - ")[0]}
+        </h3>
+
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-start space-x-2 text-muted-foreground">
+            <MapPin className="w-4 h-4 text-primary mt-1 shrink-0" />
+            <span className="text-sm md:text-base leading-snug">{eventData.location}</span>
           </div>
-          <div className="flex items-center space-x-3">
-            <Clock className="w-5 h-5 text-rose-500" />
-            <span>
-              {eventData.startTime?.substring(0, 5) || eventData.startTime} -{" "}
-              {eventData.endTime?.substring(0, 5) || eventData.endTime}
-            </span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <MapPin className="w-5 h-5 text-rose-500" />
-            <span>{eventData.location}</span>
-          </div>
+          
+          <button
+            onClick={() => setShowCalendarModal(true)}
+            className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary/60 hover:text-primary transition-colors w-fit"
+          >
+            <CalendarPlus className="w-4 h-4" />
+            Күнтізбеге қосу
+          </button>
         </div>
       </motion.div>
 
-      <Modal
-        isOpen={showCalendarModal}
-        onClose={() => setShowCalendarModal(false)}
-      >
-        <div className="space-y-6 ">
-          <div className="flex justify-between  items-center">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Add to Calendar
-            </h3>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowCalendarModal(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <X className="w-5 h-5" />
-            </motion.button>
+      <Modal isOpen={showCalendarModal} onClose={() => setShowCalendarModal(false)}>
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold">Күнтізбе</h3>
+            <button onClick={() => setShowCalendarModal(false)}><X /></button>
           </div>
-
-          <div className="space-y-3">
-            <CalendarButton
-              icon={(props) => (
-                <Chrome {...props} className="w-5 h-5 text-rose-500" />
-              )}
-              label="Google Calendar"
-              onClick={() => window.open(googleCalendarLink(), "_blank")}
-            />
-          </div>
+          <button 
+            onClick={() => window.open(googleCalendarLink(), "_blank")}
+            className="w-full p-4 border border-black rounded-xl flex items-center justify-center gap-3 font-bold hover:bg-black hover:text-white transition-all"
+          >
+            <Chrome className="w-5 h-5" /> Google Calendar
+          </button>
         </div>
       </Modal>
     </div>
   );
 };
 
-// Main EventCards component that handles multiple events
 const EventCards = ({ events }) => {
   return (
-    <div className="space-y-4">
-      {events.map((event, index) => (
-        <SingleEventCard key={index} eventData={event} />
-      ))}
+    <div className="relative max-w-5xl mx-auto py-10">
+      {/* Тонкая элегантная линия */}
+      <div className="absolute left-[1.125rem] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-primary/40 to-transparent md:left-1/2" />
+      
+      <div className="relative">
+        {events.map((event, index) => (
+          <SingleEventCard key={index} eventData={event} index={index} />
+        ))}
+      </div>
     </div>
   );
 };

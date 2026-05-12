@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 import { formatEventDate } from "@/lib/format-event-date";
 
 export default function Location() {
-  const config = useConfig(); // Use hook to get config from API or fallback to static
+  const config = useConfig(); 
 
   return (
     <>
       {/* Location section */}
-      <section id="location" className="min-h-screen relative overflow-hidden">
+      <section id="location" className="min-h-screen relative overflow-hidden bg-background">
         <div className="container mx-auto px-4 py-20 relative z-10">
           {/* Section Header */}
           <motion.div
@@ -24,7 +24,8 @@ export default function Location() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               viewport={{ once: true }}
-              className="inline-block text-rose-500 font-medium"
+              // Заменили text-rose-500 на text-primary (черный)
+              className="inline-block text-primary font-medium uppercase tracking-widest text-sm"
             >
               Іс-Әрекеттің Орны
             </motion.span>
@@ -34,7 +35,7 @@ export default function Location() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-serif text-gray-800"
+              className="text-4xl md:text-5xl font-serif text-foreground"
             >
               Орны
             </motion.h2>
@@ -47,9 +48,11 @@ export default function Location() {
               viewport={{ once: true }}
               className="flex items-center justify-center gap-4 pt-4"
             >
-              <div className="h-[1px] w-12 bg-rose-200" />
-              <MapPin className="w-5 h-5 text-rose-400" />
-              <div className="h-[1px] w-12 bg-rose-200" />
+              {/* Заменили bg-rose-200 на bg-border */}
+              <div className="h-[1px] w-12 bg-border" />
+              {/* Иконка теперь text-primary */}
+              <MapPin className="w-5 h-5 text-primary" />
+              <div className="h-[1px] w-12 bg-border" />
             </motion.div>
           </motion.div>
 
@@ -61,7 +64,8 @@ export default function Location() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border-8 border-white"
+              // Поменяли границу на border и добавили легкий фон
+              className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border-4 border-border bg-muted"
             >
               <iframe
                 src={config.maps_embed}
@@ -71,7 +75,7 @@ export default function Location() {
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-full"
+                className="w-full h-full grayscale hover:grayscale-0 transition-all duration-700"
               ></iframe>
             </motion.div>
 
@@ -83,30 +87,32 @@ export default function Location() {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-                <h3 className="text-2xl font-serif text-gray-800 mb-6">
+              {/* Карточка теперь bg-background с нашей границей */}
+              <div className="bg-background rounded-2xl p-8 shadow-sm border border-border">
+                <h3 className="text-2xl font-serif text-foreground mb-6 uppercase tracking-tight">
                   {config.location}
                 </h3>
 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-4">
-                    <MapPin className="w-5 h-5 text-rose-500 mt-1" />
-                    <p className="text-gray-600 flex-1">{config.address}</p>
+                    {/* Все иконки в text-primary */}
+                    <MapPin className="w-5 h-5 text-primary mt-1" />
+                    <p className="text-muted-foreground flex-1">{config.address}</p>
                   </div>
 
                   <div className="flex items-center space-x-4">
-                    <CalendarCheck className="w-5 h-5 text-rose-500" />
-                    <p className="text-gray-600">
+                    <CalendarCheck className="w-5 h-5 text-primary" />
+                    <p className="text-muted-foreground">
                       {formatEventDate(config.date)}
                     </p>
                   </div>
 
                   <div className="flex items-center space-x-4">
-                    <Clock className="w-5 h-5 text-rose-500" />
-                    <p className="text-gray-600">{config.time}</p>
+                    <Clock className="w-5 h-5 text-primary" />
+                    <p className="text-muted-foreground">{config.time}</p>
                   </div>
 
-                  {/* Action Button - Full Width */}
+                  {/* Action Button */}
                   <div className="pt-4">
                     <motion.a
                       href={config.maps_url}
@@ -115,10 +121,11 @@ export default function Location() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       viewport={{ once: true }}
-                      className="w-full flex items-center justify-center gap-1.5 bg-white text-gray-600 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm"
+                      // Кнопка в стиле аутлайн: белая с черной границей
+                      className="w-full flex items-center justify-center gap-1.5 bg-background text-primary px-4 py-3 rounded-lg border border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-sm font-bold uppercase tracking-widest"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
-                      <span className="font-semibold">Картаны көру</span>
+                      <span>Картаны көру</span>
                     </motion.a>
                   </div>
                 </div>

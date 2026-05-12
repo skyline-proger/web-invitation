@@ -35,7 +35,6 @@ export default function Wishes() {
   const [errorMessage, setErrorMessage] = useState("");
   const [selectedWish, setSelectedWish] = useState(null);
 
-  // Get guest name from localStorage
   useEffect(() => {
     const storedGuestName = getGuestName();
     if (storedGuestName) {
@@ -44,7 +43,6 @@ export default function Wishes() {
     }
   }, []);
 
-  // Check if guest has already submitted a wish
   useEffect(() => {
     const checkSubmissionStatus = async () => {
       if (uid && guestName && isNameFromInvitation) {
@@ -55,26 +53,21 @@ export default function Wishes() {
           }
         } catch (error) {
           console.error("Error checking wish status:", error);
-          // Don't show error to user, just let them try to submit
         }
       }
     };
-
     checkSubmissionStatus();
   }, [uid, guestName, isNameFromInvitation]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -86,60 +79,36 @@ export default function Wishes() {
     { value: "MAYBE", label: "Қалай болса да, кейін растаймын" },
   ];
 
-  // Fetch wishes using React Query
-  const {
-    data: wishes = [],
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: wishes = [], isLoading, error } = useQuery({
     queryKey: ["wishes", uid],
     queryFn: async () => {
       const response = await fetchWishes(uid);
-
-      // Данные уже распакованы в api.js, поэтому просто возвращаем их
-      if (response) {
-        return response;
-      }
-
+      if (response) return response;
       throw new Error("Failed to load wishes");
     },
     enabled: !!uid,
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 30 * 1000,
   });
 
-  // Mutation for creating wishes
   const createWishMutation = useMutation({
     mutationFn: (wishData) => createWish(uid, wishData),
     onSuccess: (response) => {
       if (response.success) {
-        // Optimistically update the cache
-        queryClient.setQueryData(["wishes", uid], (old = []) => [
-          response.data,
-          ...old,
-        ]);
-        // Reset form (keep guest name)
+        queryClient.setQueryData(["wishes", uid], (old = []) => [response.data, ...old]);
         setNewWish("");
         setAttendance("");
         setHasSubmittedWish(true);
         setErrorMessage("");
-        // Show confetti
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
       }
     },
     onError: (err) => {
-      console.error("Error submitting wish:", err);
-
-      // Check if it's a duplicate wish error
-      if (
-        err.code === "DUPLICATE_WISH" ||
-        err.message.includes("already submitted")
-      ) {
+      if (err.code === "DUPLICATE_WISH" || err.message.includes("already submitted")) {
         setHasSubmittedWish(true);
         setErrorMessage("");
       } else {
         setErrorMessage("Хабарлама жіберу сәтсіз. Қайта көрініңіз.");
-        // Auto-hide error after 5 seconds
         setTimeout(() => setErrorMessage(""), 5000);
       }
     },
@@ -148,22 +117,19 @@ export default function Wishes() {
   const handleSubmitWish = async (e) => {
     e.preventDefault();
     if (!newWish.trim() || !guestName.trim()) return;
-
     if (!uid) {
       setErrorMessage("Шақыру табылмады. Өтінем URL-ыңызды тексеріңіз.");
       setTimeout(() => setErrorMessage(""), 5000);
       return;
     }
-
-    // Clear any previous errors
     setErrorMessage("");
-
     createWishMutation.mutate({
       name: guestName.trim(),
       message: newWish.trim(),
       attendance: attendance || "MAYBE",
     });
   };
+
   const getAttendanceIcon = (status) => {
     const normalizedStatus = status?.toLowerCase();
     switch (normalizedStatus) {
@@ -171,19 +137,37 @@ export default function Wishes() {
         return <CheckCircle className="w-4 h-4 text-emerald-500" />;
       case "not_attending":
       case "not-attending":
-        return <XCircle className="w-4 h-4 text-rose-500" />;
+        return <XCircle className="w-4 h-4 text-red-500" />;
       case "maybe":
         return <HelpCircle className="w-4 h-4 text-amber-500" />;
       default:
         return null;
     }
   };
+
   return (
     <>
-      <section id="wishes" className="min-h-screen relative overflow-hidden">
-        {showConfetti && <Confetti recycle={false} numberOfPieces={200} />}
-        <div className="container mx-auto px-4 py-20 relative z-10">
-          {/* Section Header */}
+      <section 
+        id="wishes" 
+        className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center py-20"
+        style={{
+          backgroundImage: 'url("/images/wishes_bg.png")',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Затемняющий слой для читаемости текста на фоне картинки */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0" />
+
+        {showConfetti && (
+          <div className="fixed inset-0 z-[100] pointer-events-none">
+            <Confetti recycle={false} numberOfPieces={200} colors={['#fff', '#ccc', '#999']} />
+          </div>
+        )}
+
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -194,7 +178,7 @@ export default function Wishes() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-block text-rose-500 font-medium"
+              className="inline-block text-white/70 font-medium uppercase tracking-[0.3em] text-xs"
             >
               Ең жақсы дұаларыңыз бен тіліктеріңізді жіберіңіз
             </motion.span>
@@ -203,114 +187,64 @@ export default function Wishes() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl font-serif text-gray-800"
+              className="text-4xl md:text-6xl font-serif text-white tracking-tighter"
             >
               Қонақтар тілегі
             </motion.h2>
 
-            {/* Decorative Divider */}
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.4 }}
               className="flex items-center justify-center gap-4 pt-4"
             >
-              <div className="h-[1px] w-12 bg-rose-200" />
-              <MessageCircle className="w-5 h-5 text-rose-400" />
-              <div className="h-[1px] w-12 bg-rose-200" />
+              <div className="h-[1px] w-12 bg-white/20" />
+              <MessageCircle className="w-5 h-5 text-white/40" />
+              <div className="h-[1px] w-12 bg-white/20" />
             </motion.div>
           </motion.div>
 
-          {/* Wishes List */}
-          <div className="max-w-2xl mx-auto space-y-6">
+          <div className="max-w-4xl mx-auto space-y-6">
             {isLoading && (
               <div className="flex justify-center items-center py-12">
-                <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
-                <span className="ml-3 text-gray-600">Хабар жүктелуде...</span>
-              </div>
-            )}
-
-            {error && !isLoading && (
-              <div className="text-center py-8">
-                <p className="text-rose-600">{error}</p>
-              </div>
-            )}
-
-            {!isLoading && !error && (!wishes || wishes.length === 0) && (
-              <div className="text-center py-12">
-                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">
-                  Әлі хабарлама жоқ. Бірінші болыңыз!
-                </p>
+                <Loader2 className="w-8 h-8 text-white/50 animate-spin" />
               </div>
             )}
 
             {!isLoading && wishes && wishes.length > 0 && (
               <AnimatePresence>
-                <Marquee
-                  pauseOnHover={true}
-                  repeat={2}
-                  className="[--duration:60s] [--gap:1rem] py-2"
-                >
-                  {wishes.map((wish, index) => (
+                <Marquee pauseOnHover={true} repeat={2} className="[--duration:60s] py-2">
+                  {wishes.map((wish) => (
                     <motion.div
                       key={wish.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group relative w-[300px] h-[160px] flex-shrink-0 cursor-pointer"
+                      className="group relative w-[300px] h-[160px] mx-4 cursor-pointer"
                       onClick={() => setSelectedWish(wish)}
                       whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
                     >
-                      {/* Background gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-rose-100/60 to-pink-100/60 rounded-2xl transform transition-transform group-hover:scale-[1.02] duration-300" />
-
-                      {/* Card content */}
-                      <div className="relative h-full backdrop-blur-sm bg-white/90 p-4 rounded-2xl border border-rose-100/50 shadow-md flex flex-col">
-                        {/* Header */}
+                      {/* Стеклянный эффект для карточки */}
+                      <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl" />
+                      
+                      <div className="relative h-full p-4 flex flex-col text-white">
                         <div className="flex items-center space-x-3 mb-3">
-                          {/* Avatar */}
-                          <div className="flex-shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-sm font-semibold shadow-sm">
-                              {wish.name[0].toUpperCase()}
-                            </div>
+                          <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center text-sm font-bold shadow-sm">
+                            {wish.name[0].toUpperCase()}
                           </div>
-
-                          {/* Name, Time, and Attendance */}
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 text-left">
                             <div className="flex items-center space-x-2">
-                              <h4 className="font-semibold text-gray-800 text-sm truncate max-w-[140px]">
+                              <h4 className="font-bold text-xs truncate max-w-[140px] uppercase tracking-wider">
                                 {wish.name}
                               </h4>
                               {getAttendanceIcon(wish.attendance)}
                             </div>
-                            <div className="flex items-center space-x-1 text-gray-400 text-xs mt-0.5">
-                              <Clock className="w-3 h-3 flex-shrink-0" />
-                              <time className="truncate">
-                                {formatEventDate(
-                                  wish.created_at,
-                                  "short",
-                                  true,
-                                )}
-                              </time>
+                            <div className="flex items-center space-x-1 opacity-50 text-[10px] mt-0.5">
+                              <Clock className="w-3 h-3" />
+                              <time>{formatEventDate(wish.created_at, "short", true)}</time>
                             </div>
                           </div>
-
-                          {/* New badge */}
-                          {Date.now() - new Date(wish.created_at).getTime() <
-                            3600000 && (
-                            <span className="flex-shrink-0 px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-xs font-medium">
-                              New
-                            </span>
-                          )}
                         </div>
-
-                        {/* Message */}
-                        <div className="flex-1 overflow-hidden">
-                          <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
-                            {wish.message}
+                        <div className="flex-1 overflow-hidden text-left">
+                          <p className="opacity-80 text-sm italic leading-relaxed line-clamp-3">
+                            "{wish.message}"
                           </p>
                         </div>
                       </div>
@@ -321,326 +255,149 @@ export default function Wishes() {
             )}
           </div>
 
-          {/* Wish Detail Modal */}
-          <AnimatePresence>
-            {selectedWish && (
-              <>
-                {/* Backdrop */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={() => setSelectedWish(null)}
-                  className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-                >
-                  {/* Modal Card */}
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
-                  >
-                    {/* Modal Header */}
-                    <div className="sticky top-0 bg-gradient-to-br from-rose-50 to-pink-50 p-6 border-b border-rose-100">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          {/* Avatar */}
-                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-2xl font-semibold shadow-lg">
-                            {selectedWish.name[0].toUpperCase()}
-                          </div>
-
-                          {/* Name and Time */}
-                          <div>
-                            <h3 className="text-2xl font-serif text-gray-800 font-semibold">
-                              {selectedWish.name}
-                            </h3>
-                            <div className="flex items-center space-x-2 text-gray-500 text-sm mt-1">
-                              <Clock className="w-4 h-4" />
-                              <time>
-                                {formatEventDate(
-                                  selectedWish.created_at,
-                                  "long",
-                                  true,
-                                )}
-                              </time>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Close Button */}
-                        <button
-                          onClick={() => setSelectedWish(null)}
-                          className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                          aria-label="Close"
-                        >
-                          <XCircle className="w-6 h-6 text-gray-400 hover:text-gray-600" />
-                        </button>
-                      </div>
-
-                      {/* Attendance Badge */}
-                      {selectedWish.attendance && (
-                        <div className="mt-4 flex items-center space-x-2">
-                          {getAttendanceIcon(selectedWish.attendance)}
-                          <span className="text-sm font-medium text-gray-700">
-                            {selectedWish.attendance === "ATTENDING" &&
-                              "Келемін"}
-                            {selectedWish.attendance === "NOT_ATTENDING" &&
-                              "Келе алмаймын"}
-                            {selectedWish.attendance === "MAYBE" &&
-                              "Қалай болса да"}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Modal Body - Full Message */}
-                    <div className="p-6">
-                      <div className="prose prose-gray max-w-none">
-                        <p className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap">
-                          {selectedWish.message}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Modal Footer */}
-                    <div className="sticky bottom-0 bg-gray-50 p-4 border-t border-gray-100 flex justify-end">
-                      <button
-                        onClick={() => setSelectedWish(null)}
-                        className="px-6 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-medium transition-colors"
-                      >
-                        Жабу
-                      </button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-
-          {/* Wishes Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="max-w-2xl mx-auto mt-12"
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto mt-12">
             {hasSubmittedWish ? (
-              <div className="backdrop-blur-sm bg-white/80 p-8 rounded-2xl border border-emerald-100 shadow-lg text-center">
-                <div className="flex flex-col items-center space-y-4">
-                  <CheckCircle className="w-16 h-16 text-emerald-500" />
-                  <h3 className="text-2xl font-serif text-gray-800">Рахмет!</h3>
-                  <p className="text-gray-600">
-                    Сіздің хабарлама және дұа жіберіліді. Сіздің сөзіңіздің
-                    барлығын біз сындарлы терміз.
-                  </p>
-                  <p className="text-sm text-gray-500 italic">
-                    Әр қонақ тек бір хабарлама жібере алады.
-                  </p>
-                </div>
+              <div className="backdrop-blur-xl bg-white/20 p-10 rounded-3xl border border-white/30 text-center text-white shadow-2xl">
+                <CheckCircle className="w-16 h-16 text-white mx-auto mb-4" />
+                <h3 className="text-3xl font-serif">Рахмет!</h3>
+                <p className="opacity-70 mt-2">Сіздің хабарламаңыз қабылданды.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmitWish} className="relative">
-                <div className="backdrop-blur-sm bg-white/80 p-6 rounded-2xl border border-rose-100/50 shadow-lg">
-                  {/* Error Message */}
-                  <AnimatePresence>
-                    {errorMessage && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="mb-4 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-3"
-                      >
-                        <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1">
-                          <p className="text-sm text-rose-800 font-medium">
-                            {errorMessage}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setErrorMessage("")}
-                          className="text-rose-400 hover:text-rose-600 transition-colors"
-                        >
-                          <XCircle className="w-4 h-4" />
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+              <form onSubmit={handleSubmitWish} className="backdrop-blur-xl bg-white/15 p-8 rounded-3xl border border-white/10 shadow-2xl space-y-6">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest text-white/50 flex items-center gap-2 ml-1">
+                      <User className="w-3 h-3" /> Сіздің Атыңыз
+                    </label>
+                    <input
+                      type="text"
+                      value={guestName}
+                      onChange={(e) => { setGuestName(e.target.value); setIsNameFromInvitation(false); }}
+                      disabled={isNameFromInvitation}
+                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white outline-none focus:bg-white/20 transition-all disabled:opacity-50"
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2 relative" ref={dropdownRef}>
+                    <label className="text-[10px] uppercase tracking-widest text-white/50 flex items-center gap-2 ml-1">
+                      <Calendar className="w-3 h-3" /> Келу статусы
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsOpen(!isOpen)}
+                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white text-left flex justify-between items-center text-sm"
+                    >
+                      <span className={attendance ? "text-white" : "text-white/40"}>
+                        {attendance ? options.find(opt => opt.value === attendance)?.label : "Таңдаңыз..."}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div className="absolute z-20 w-full mt-2 bg-white rounded-xl shadow-2xl overflow-hidden py-1">
+                          {options.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              className="w-full px-4 py-3 text-left hover:bg-gray-100 transition-colors text-xs text-black font-medium"
+                              onClick={() => { setAttendance(opt.value); setIsOpen(false); }}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
 
                   <div className="space-y-2">
-                    {/* Name Input - Pre-filled from URL or editable */}
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2 text-gray-500 text-sm mb-1">
-                        <User className="w-4 h-4" />
-                        <label htmlFor="guest-name">Сіздің Атыңыз</label>
-                      </div>
-                      <input
-                        type="text"
-                        id="guest-name"
-                        name="guestName"
-                        autoComplete="name"
-                        placeholder="Өтінем атыңызды енгізіңіз..."
-                        value={guestName}
-                        onChange={(e) => {
-                          setGuestName(e.target.value);
-                          setIsNameFromInvitation(false);
-                        }}
-                        disabled={isNameFromInvitation}
-                        className={`w-full px-4 py-2.5 rounded-xl border transition-all duration-200 text-gray-700 placeholder-gray-400 ${
-                          isNameFromInvitation
-                            ? "bg-gray-100 border-gray-200 cursor-not-allowed opacity-75"
-                            : "bg-white/50 border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50"
-                        }`}
-                        required
-                      />
-                    </div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="space-y-2 relative"
-                      ref={dropdownRef}
-                    >
-                      <div className="flex items-center space-x-2 text-gray-500 text-sm mb-1">
-                        <Calendar className="w-4 h-4" />
-                        <label htmlFor="attendance-select">
-                          Сіз келмейсіз бе?
-                        </label>
-                      </div>
-
-                      {/* Hidden select for accessibility */}
-                      <select
-                        id="attendance-select"
-                        name="attendance"
-                        value={attendance}
-                        onChange={(e) => setAttendance(e.target.value)}
-                        className="sr-only"
-                        aria-hidden="true"
-                      >
-                        <option value="">Келу статусын таңдаңыз...</option>
-                        {options.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-
-                      {/* Custom Select Button */}
-                      <button
-                        type="button"
-                        onClick={() => setIsOpen(!isOpen)}
-                        aria-label="Келу статусын таңдаңыз"
-                        aria-expanded={isOpen}
-                        aria-controls="attendance-dropdown"
-                        className="w-full px-4 py-2.5 rounded-xl bg-white/50 border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 transition-all duration-200 text-left flex items-center justify-between"
-                      >
-                        <span
-                          className={
-                            attendance ? "text-gray-700" : "text-gray-400"
-                          }
-                        >
-                          {attendance
-                            ? options.find((opt) => opt.value === attendance)
-                                ?.label
-                            : "Келу статусын таңдаңыз..."}
-                        </span>
-                        <ChevronDown
-                          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                            isOpen ? "transform rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {/* Dropdown Options */}
-                      <AnimatePresence>
-                        {isOpen && (
-                          <motion.div
-                            id="attendance-dropdown"
-                            role="listbox"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-rose-100 overflow-hidden"
-                          >
-                            {options.map((option) => (
-                              <motion.button
-                                key={option.value}
-                                type="button"
-                                onClick={() => {
-                                  setAttendance(option.value);
-                                  setIsOpen(false);
-                                }}
-                                whileHover={{
-                                  backgroundColor: "rgb(255, 241, 242)",
-                                }}
-                                className={`w-full px-4 py-2.5 text-left transition-colors
-                                        ${
-                                          attendance === option.value
-                                            ? "bg-rose-50 text-rose-600"
-                                            : "text-gray-700 hover:bg-rose-50"
-                                        }`}
-                              >
-                                {option.label}
-                              </motion.button>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                    {/* Wish Textarea */}
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2 text-gray-500 text-sm mb-1">
-                        <MessageCircle className="w-4 h-4" />
-                        <label htmlFor="wish-message">Тілек сөздері</label>
-                      </div>
-                      <textarea
-                        id="wish-message"
-                        name="message"
-                        placeholder="Тілектер мен дұаларыңызды жазыңыз..."
-                        value={newWish}
-                        onChange={(e) => setNewWish(e.target.value)}
-                        className="w-full h-32 p-4 rounded-xl bg-white/50 border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 resize-none transition-all duration-200"
-                        required
-                      />
-                    </div>
+                    <label className="text-[10px] uppercase tracking-widest text-white/50 flex items-center gap-2 ml-1">
+                      <MessageCircle className="w-3 h-3" /> Тілек сөздері
+                    </label>
+                    <textarea
+                      value={newWish}
+                      onChange={(e) => setNewWish(e.target.value)}
+                      className="w-full h-32 px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white outline-none focus:bg-white/20 transition-all resize-none text-sm"
+                      required
+                    />
                   </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <motion.button
-                      type="submit"
-                      disabled={createWishMutation.isPending}
-                      whileHover={{
-                        scale: createWishMutation.isPending ? 1 : 1.02,
-                      }}
-                      whileTap={{
-                        scale: createWishMutation.isPending ? 1 : 0.98,
-                      }}
-                      className={`w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-xl text-white font-medium transition-all duration-200
-                    ${
-                      createWishMutation.isPending
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-rose-500 hover:bg-rose-600"
-                    }`}
-                    >
-                      {createWishMutation.isPending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4" />
-                      )}
-                      <span>
-                        {createWishMutation.isPending
-                          ? "Жіберілуде..."
-                          : "Тілек жіберу"}
-                      </span>
-                    </motion.button>
-                  </div>
+
+                  {errorMessage && <p className="text-red-300 text-xs text-center">{errorMessage}</p>}
+
+                  <button
+                    type="submit"
+                    disabled={createWishMutation.isPending}
+                    className="w-full py-4 bg-white text-black rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-3 hover:bg-white/90 transition-all shadow-xl"
+                  >
+                    {createWishMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                    Жіберу
+                  </button>
                 </div>
               </form>
             )}
           </motion.div>
         </div>
       </section>
+{/* Footer Section */}
+      <footer className="relative z-10 bg-black py-12 flex flex-col items-center justify-center border-t border-white/5 w-full">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-white/10" />
+          <span className="text-[10px] uppercase tracking-[0.5em] text-white/20 font-light">
+            Invitation by
+          </span>
+          <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-white/10" />
+        </div>
+        
+        <a 
+          href="https://github.com/skyline-proger" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="group flex flex-col items-center"
+        >
+          <span className="text-sm tracking-[0.2em] font-serif italic text-white/40 group-hover:text-white transition-all duration-700">
+            skyline-proger
+          </span>
+          {/* Маленькая точка-индикатор под ником */}
+          <motion.div 
+            className="w-1 h-1 bg-white/40 rounded-full mt-2"
+            animate={{ opacity: [0.2, 1, 0.2] }}
+            transition={{ repeat: Infinity, duration: 2 }}
+          />
+        </a>
+      </footer>
+
+      {/* Модалка setSelectedWish — делаем её тоже в стиле приглашения */}
+      <AnimatePresence>
+        {selectedWish && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setSelectedWish(null)}
+            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-3xl overflow-hidden max-w-lg w-full shadow-2xl text-black"
+            >
+              <div className="p-8 text-center space-y-6">
+                <div className="w-20 h-20 rounded-full bg-black text-white flex items-center justify-center text-3xl font-serif mx-auto">
+                  {selectedWish.name[0].toUpperCase()}
+                </div>
+                <h3 className="text-3xl font-serif uppercase tracking-tight">{selectedWish.name}</h3>
+                <p className="text-lg leading-relaxed font-light italic text-gray-700">"{selectedWish.message}"</p>
+                <button 
+                  onClick={() => setSelectedWish(null)}
+                  className="px-10 py-3 bg-black text-white rounded-full text-[10px] uppercase tracking-widest font-bold"
+                >
+                  Жабу
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
+    
   );
 }

@@ -1,10 +1,6 @@
 /**
  * Sakeenah API Server
  * Hono-based REST API for wedding invitations
- *
- * Features:
- * - Invitation: Fetch invitation data with agenda and bank accounts
- * - Wishes: Guest wishes/RSVP management
  */
 
 import { Hono } from "hono";
@@ -25,11 +21,15 @@ const api = new Hono();
 // ============ Middleware ============
 
 app.use("*", logger());
+
+// БРОНЕБОЙНЫЙ CORS: динамически пускает любой домен и разрешает предзапросы
 app.use(
   "*",
   cors({
-    origin: ["*"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+    origin: (origin) => origin || "*", // Возвращает точный адрес, кто стучится (например, http://localhost:5173)
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Добавили OPTIONS!
+    allowHeaders: ["Content-Type", "Authorization"], // Разрешили JSON-заголовки
+    credentials: true,
   }),
 );
 
