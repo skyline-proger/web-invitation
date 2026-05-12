@@ -1,0 +1,116 @@
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+/**
+ * Fetch all wishes for an invitation
+ * @param {string} uid - Invitation UID
+ * @param {object} options - Query options (limit, offset)
+ * @returns {Promise<object>} Response with wishes data
+ */
+export async function fetchWishes(uid, options = {}) {
+  const { limit = 50, offset = 0 } = options;
+  // Добавили window.location.origin, чтобы не было ошибки при пустом API_URL
+  const url = new URL(`${API_URL}/api/${uid}/wishes`, window.location.origin);
+  url.searchParams.set("limit", limit);
+  url.searchParams.set("offset", offset);
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to fetch wishes");
+  }
+  const json = await response.json();
+  return json.data || json; // <-- РАСПАКОВКА ДАННЫХ
+}
+
+/**
+ * Create a new wish
+ * @param {string} uid - Invitation UID
+ * @param {object} wishData - Wish data (name, message, attendance)
+ * @returns {Promise<object>} Response with created wish
+ */
+export async function createWish(uid, wishData) {
+  const response = await fetch(`${API_URL}/api/${uid}/wishes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(wishData),
+  });
+
+  const json = await response.json();
+
+  if (!response.ok) {
+    // Preserve error code for duplicate wish detection
+    const error = new Error(json.error || "Failed to create wish");
+    error.code = json.code;
+    throw error;
+  }
+  return json.data || json; // <-- РАСПАКОВКА ДАННЫХ
+}
+
+/**
+ * Check if guest has already submitted a wish
+ * @param {string} uid - Invitation UID
+ * @param {string} name - Guest name
+ * @returns {Promise<object>} Response with hasSubmitted boolean
+ */
+export async function checkWishSubmitted(uid, name) {
+  const response = await fetch(
+    `${API_URL}/api/${uid}/wishes/check/${encodeURIComponent(name)}`,
+  );
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to check wish status");
+  }
+  const json = await response.json();
+  return json.data !== undefined ? json.data : json; // <-- РАСПАКОВКА ДАННЫХ
+}
+
+/**
+ * Delete a wish (admin function)
+ * @param {string} uid - Invitation UID
+ * @param {number} wishId - Wish ID to delete
+ * @returns {Promise<object>} Response with deletion confirmation
+ */
+export async function deleteWish(uid, wishId) {
+  const response = await fetch(`${API_URL}/api/${uid}/wishes/${wishId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to delete wish");
+  }
+  const json = await response.json();
+  return json.data || json; // <-- РАСПАКОВКА ДАННЫХ
+}
+
+/**
+ * Get attendance statistics
+ * @param {string} uid - Invitation UID
+ * @returns {Promise<object>} Response with stats data
+ */
+export async function fetchAttendanceStats(uid) {
+  const response = await fetch(`${API_URL}/api/${uid}/stats`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to fetch stats");
+  }
+  const json = await response.json();
+  return json.data || json; // <-- РАСПАКОВКА ДАННЫХ
+}
+
+/**
+ * Get invitation details
+ * @param {string} uid - Invitation UID
+ * @returns {Promise<object>} Response with invitation data
+ */
+export async function fetchInvitation(uid) {
+  const response = await fetch(`${API_URL}/api/invitation/${uid}`);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to fetch invitation");
+  }
+  const json = await response.json();
+  return json.data || json; // <-- ГЛАВНАЯ РАСПАКОВКА (Исправляет белый экран!)
+}
