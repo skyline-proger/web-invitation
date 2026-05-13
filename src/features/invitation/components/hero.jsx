@@ -123,7 +123,7 @@ export default function Hero() {
     <>
       <section
         id="home"
-        className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden bg-background"
+        className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden"
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -33,14 +33,14 @@
     --radius: 0.5rem;
   }
   .dark {
-    --background: 0 0% 4%; /* Почти черный фон */
-    --foreground: 0 0% 98%; /* Белый текст */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
     --card: 0 0% 4%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%; /* Белые кнопки */
-    --primary-foreground: 0 0% 0%; /* Черный текст на кнопках */
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 0%;
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 15%;
@@ -49,36 +49,61 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%; /* Темно-серые границы */
+    --border: 0 0% 15%;
     --input: 0 0% 15%;
     --ring: 0 0% 80%;
   }
 }
+
 @layer base {
-  * {
-    @apply border-border;
+  /* Принудительно убираем все отступы и обводки */
+  html {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw;
+    height: 100%;
+    overflow-x: hidden;
   }
+
   body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100vw;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
     @apply bg-background text-foreground;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
     background-image: url("/images/background.png");
-    background-position: center;
+    background-position: center top;
     background-size: cover;
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-attachment: scroll;
+  }
+
+  * {
+    @apply border-border;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
   }
 }
+
 .inverted-section {
   --background: 0 0% 0%; 
   --foreground: 0 0% 100%;
-  
-  /* Карточки остаются белыми */
   --card: 0 0% 100%;
   --card-foreground: 0 0% 0%;
-  
-  /* ИКОНКИ ТЕПЕРЬ БЕЛЫЕ */
   --primary: 0 0% 100%; 
   --primary-foreground: 0 0% 0%; 
-  
   --border: 0 0% 90%;
   --muted-foreground: 0 0% 40%;
 }

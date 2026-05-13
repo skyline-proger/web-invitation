@@ -9,7 +9,7 @@ export default function Location() {
   return (
     <>
       {/* Location section */}
-      <section id="location" className="min-h-screen relative overflow-hidden bg-background">
+      <section id="location" className="min-h-screen relative overflow-hidden">
         <div className="container mx-auto px-4 py-20 relative z-10">
           {/* Section Header */}
           <motion.div

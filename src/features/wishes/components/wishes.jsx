@@ -149,7 +149,7 @@ export default function Wishes() {
     <>
       <section 
         id="wishes" 
-        className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center py-20 bg-white"
+        className="min-h-screen w-screen left-1/2 -translate-x-1/2 relative overflow-hidden flex flex-col items-center justify-center py-20"
       >
         <div 
             className="absolute inset-0 z-0 pointer-events-none"
@@ -180,7 +180,7 @@ export default function Wishes() {
           </div>
         )}
 
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-0 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -269,7 +269,7 @@ export default function Wishes() {
             )}
           </div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto mt-12">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl mx-auto mt-12 px-4">
             {hasSubmittedWish ? (
               <div className="backdrop-blur-xl bg-white/20 p-10 rounded-3xl border border-white/30 text-center text-white shadow-2xl">
                 <CheckCircle className="w-16 h-16 text-white mx-auto mb-4" />
@@ -354,7 +354,7 @@ export default function Wishes() {
         </div>
       </section>
 {/* Footer Section */}
-      <footer className="relative z-10 bg-black py-12 flex flex-col items-center justify-center border-t border-white/5 w-full">
+      <footer className="w-screen left-1/2 -translate-x-1/2 relative z-10 bg-black py-8 pb-32 flex flex-col items-center justify-center border-t border-white/5">
         <div className="flex items-center gap-3 mb-3">
           <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-white/10" />
           <span className="text-[10px] uppercase tracking-[0.5em] text-white/20 font-light">
@@ -381,7 +381,6 @@ export default function Wishes() {
         </a>
       </footer>
 
-      {/* Модалка setSelectedWish — делаем её тоже в стиле приглашения */}
       <AnimatePresence>
         {selectedWish && (
           <motion.div
@@ -412,6 +411,5 @@ export default function Wishes() {
         )}
       </AnimatePresence>
     </>
-    
   );
 }

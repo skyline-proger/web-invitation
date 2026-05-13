@@ -74,7 +74,7 @@ const BottomBar = () => {
   }, [menuItems]);
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 z-50 flex justify-center px-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-4 py-4">
       <motion.div
         className="w-auto"
         initial={{ y: 100, opacity: 0 }}

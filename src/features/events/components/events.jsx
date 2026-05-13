@@ -8,7 +8,7 @@ export default function Events() {
 
   return (
     <>
-      <section id="event" className="relative">
+      <section id="event" className="relative w-screen left-1/2 -translate-x-1/2">
         {/* Анимированный фон, который плавно перетекает в черный */}
         <motion.div
     // Вместо переменных используем HEX-коды для анимации
@@ -16,7 +16,7 @@ export default function Events() {
         whileInView={{ backgroundColor: "#000000" }} // Явный черный для инверсии
         viewport={{ once: false, amount: 0.1 }}
         transition={{ duration: 1, ease: "easeInOut" }}
-          className="inverted-section min-h-screen relative overflow-hidden"
+          className="inverted-section min-h-screen w-screen relative overflow-hidden"
         >
           {/* Декоративный градиент сверху для мягкого перехода */}
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-background to-transparent opacity-100 z-20" />

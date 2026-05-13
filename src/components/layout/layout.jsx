@@ -26,7 +26,7 @@ const Layout = ({ children, audioControls }) => {
   return (
     <div className="relative min-h-screen w-full bg-secondary flex items-center justify-center">
       <motion.div
-        className="mx-auto w-full max-w-[430px] min-h-screen bg-background relative overflow-hidden border border-border shadow-lg"
+        className="mx-auto w-full max-w-[430px] min-h-screen bg-background relative overflow-visible border border-border shadow-lg"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -51,7 +51,7 @@ const Layout = ({ children, audioControls }) => {
           </motion.button>
         )}
 
-        <main className="relative h-full w-full pb-[100px]">{children}</main>
+        <main className="relative h-full w-full">{children}</main>
         
         <BottomBar />
 

@@ -90,7 +90,7 @@ function App() {
         <meta property="twitter:description" content={activeConfig.description} />
         <meta property="twitter:image" content={activeConfig.ogImage} />
         <link rel="icon" type="image/x-icon" href={activeConfig.favicon} />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0 viewport-fit=cover" />
         {/* Поменял theme-color на белый (для мобильных браузеров) */}
         <meta name="theme-color" content="#ffffff" />
       </Helmet>
