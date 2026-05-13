@@ -149,17 +149,30 @@ export default function Wishes() {
     <>
       <section 
         id="wishes" 
-        className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center py-20"
-        style={{
-          backgroundImage: 'url("/images/wishes_bg.png")',
-          backgroundPosition: 'center',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed'
-        }}
+        className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center py-20 bg-white"
       >
-        {/* Затемняющий слой для читаемости текста на фоне картинки */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-0" />
+        <div 
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{ clipPath: 'inset(0 0 0 0)' }}
+          >
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundImage: 'url("/images/wishes_bg.png")',
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                transform: 'translateZ(0)',
+                willChange: 'transform'
+              }}
+            />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        </div>
 
         {showConfetti && (
           <div className="fixed inset-0 z-[100] pointer-events-none">
