@@ -124,6 +124,12 @@ export default function Hero() {
       <section
         id="home"
         className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/images/hero_bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
       >
         <motion.div
           initial={{ opacity: 0, y: 20 }}

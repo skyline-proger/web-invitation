@@ -12,6 +12,12 @@ const LandingPage = ({ onOpenInvitation }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="min-h-screen relative overflow-hidden flex items-center justify-center"
+      style={{
+        backgroundImage: "url('/images/landing_bg.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
+      }}
     >
       {/* ЕДИНАЯ ПАНОРАМНАЯ ЛЕНТА */}
       <motion.div
@@ -21,7 +27,7 @@ const LandingPage = ({ onOpenInvitation }) => {
         className="w-full relative z-10"
       >
         {/* Стеклянный фон от края до края */}
-        <div className="backdrop-blur-xl bg-white/30 py-12 md:py-20 border-y border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
+        <div className="backdrop-blur-2xl bg-white/5 py-12 md:py-20 border-y border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] rounded-2xl mx-4">
           <div className="max-w-4xl mx-auto px-4 flex flex-col items-center">
             
             {/* 1. Дата и Время (в одну строку для панорамности) */}
