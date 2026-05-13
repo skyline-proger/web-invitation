@@ -233,11 +233,12 @@ export default function Wishes() {
                       className="group relative w-[300px] h-[160px] mx-4 cursor-pointer"
                       onClick={() => setSelectedWish(wish)}
                       whileHover={{ scale: 1.02 }}
+                      style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
                     >
                       {/* Стеклянный эффект для карточки */}
-                      <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl" />
+                      <div className="absolute inset-0 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl" style={{ zIndex: -1, backfaceVisibility: 'hidden' }} />
                       
-                      <div className="relative h-full p-4 flex flex-col text-white">
+                      <div className="relative z-10 h-full p-4 flex flex-col text-white pointer-events-none">
                         <div className="flex items-center space-x-3 mb-3">
                           <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center text-sm font-bold shadow-sm">
                             {wish.name[0].toUpperCase()}
