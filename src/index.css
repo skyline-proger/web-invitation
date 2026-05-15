@@ -75,7 +75,6 @@
     height: 100vh;
     background-size: cover;
     background-position: center;
-    transition: background-image 0.5s ease-in-out; /* Smooth fade between images */
     z-index: -1;
   }
 
