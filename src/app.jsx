@@ -34,39 +34,44 @@ function App() {
       return;
     }
 
-    // 2. ONLY watch the Main Content sections that need the fixed background
+    // INSTANT FIX: Force the hero background immediately so there is never a blank screen
+    document.body.classList.add("theme-hero");
+
     const bgSections = ["hero", "wishes"];
 
-    // 3. Setup observer to switch themes invisibly behind the white sections
     const observerOptions = {
       root: null,
-      // The 150px margin triggers the background swap BEFORE the section fully enters,
-      // hiding the image change behind your solid white sections.
       rootMargin: "300px 0px 300px 0px", 
       threshold: 0, 
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        // Only swap if the section is one of our designated background sections
         if (entry.isIntersecting && bgSections.includes(entry.target.id)) {
-          // Clean previous background classes
           document.body.classList.remove("theme-hero", "theme-wishes");
-          // Apply the newly triggered theme
           document.body.classList.add(`theme-${entry.target.id}`);
         }
       });
     }, observerOptions);
 
-    // Small delay to ensure MainContent components are rendered before observing
-    const timeoutId = setTimeout(() => {
+    // SMART FIX: Poll for elements since they are Lazy Loaded
+    let checkInterval;
+    
+    const startObserving = () => {
       const sections = document.querySelectorAll("section");
-      sections.forEach((section) => observer.observe(section));
-    }, 500);
+      // Once the lazy-loaded sections are actually in the DOM, observe them and stop polling
+      if (sections.length > 0) {
+        sections.forEach((section) => observer.observe(section));
+        clearInterval(checkInterval);
+      }
+    };
+
+    // Check every 100ms until the components are found
+    checkInterval = setInterval(startObserving, 100);
 
     return () => {
       observer.disconnect();
-      clearTimeout(timeoutId);
+      clearInterval(checkInterval);
     };
   }, [isInvitationOpen]);
 
