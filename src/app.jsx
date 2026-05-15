@@ -34,23 +34,25 @@ function App() {
       return;
     }
 
-    // 2. Setup observer to switch themes based on which section is visible
+    // 2. Only watch the sections that ACTUALLY have background images
+    const bgSections = ["landing", "hero", "wishes"];
+
+    // 3. Setup observer to switch themes invisibly behind the white sections
     const observerOptions = {
       root: null,
-      threshold: 0, // Change theme when 0% section is visible
+      // The 150px margin triggers the background swap BEFORE the section fully enters,
+      // hiding the image change behind your solid white sections.
+      rootMargin: "150px 0px 150px 0px", 
+      threshold: 0, 
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.target.id) {
-          // Clean classes and apply the new theme based on section ID
-          document.body.classList.remove(
-            "theme-landing",
-            "theme-hero",
-            "theme-wishes",
-            "theme-events",
-            "theme-location"
-          );
+        // Only swap if the section is one of our designated background sections
+        if (entry.isIntersecting && bgSections.includes(entry.target.id)) {
+          // Clean previous background classes
+          document.body.classList.remove("theme-landing", "theme-hero", "theme-wishes");
+          // Apply the newly triggered theme
           document.body.classList.add(`theme-${entry.target.id}`);
         }
       });
