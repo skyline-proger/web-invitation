@@ -7,18 +7,20 @@ const LandingPage = ({ onOpenInvitation }) => {
   const config = useConfig();
 
   return (
-    <motion.div
+    <motion.section
+      // 1. ADDED ID: This matches the 'theme-landing' in your CSS
+      id="landing" 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen relative overflow-hidden flex items-center justify-center"
-      style={{
-        backgroundImage: "url('/images/landing_bg.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundAttachment: "fixed",
-      }}
+      // 2. CLEANED CLASSES: Removed inline background styles
+      className="min-h-screen relative overflow-hidden flex items-center justify-center bg-transparent"
     >
+      {/* 
+          REMOVED: The inline style={{ backgroundImage: ... }} 
+          The body::before in index.css now handles this image.
+      */}
+
       {/* ЕДИНАЯ ПАНОРАМНАЯ ЛЕНТА */}
       <motion.div
         initial={{ opacity: 0, scaleX: 0.8 }}
@@ -30,7 +32,7 @@ const LandingPage = ({ onOpenInvitation }) => {
         <div className="backdrop-blur-2xl bg-white/5 py-12 md:py-20 border-y border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] rounded-2xl mx-4">
           <div className="max-w-4xl mx-auto px-4 flex flex-col items-center">
             
-            {/* 1. Дата и Время (в одну строку для панорамности) */}
+            {/* 1. Дата и Время */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -52,7 +54,7 @@ const LandingPage = ({ onOpenInvitation }) => {
               </div>
             </motion.div>
 
-            {/* 2. Имена Пары — Вертикальная панорамная композиция */}
+            {/* 2. Имена Пары */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -60,8 +62,6 @@ const LandingPage = ({ onOpenInvitation }) => {
               className="text-center mb-12 w-full flex flex-col items-center"
             >
               <h1 className="flex flex-col items-center font-serif text-black leading-[0.9] tracking-tighter">
-                
-                {/* Верхнее имя */}
                 <motion.span 
                   initial={{ y: -20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -71,7 +71,6 @@ const LandingPage = ({ onOpenInvitation }) => {
                   {config.groomName}
                 </motion.span>
                 
-                {/* ЦЕНТРАЛЬНЫЙ ЗНАЧОК — связующее звено */}
                 <motion.span 
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
@@ -81,7 +80,6 @@ const LandingPage = ({ onOpenInvitation }) => {
                   &
                 </motion.span>
                 
-                {/* Нижнее имя */}
                 <motion.span 
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -90,10 +88,8 @@ const LandingPage = ({ onOpenInvitation }) => {
                 >
                   {config.brideName}
                 </motion.span>
-                
               </h1>
 
-              {/* Изящный разделитель под всей конструкцией */}
               <motion.div 
                 initial={{ width: 0 }}
                 whileInView={{ width: "80px" }}
@@ -102,7 +98,7 @@ const LandingPage = ({ onOpenInvitation }) => {
               />
             </motion.div>
 
-            {/* 3. Кнопка "Открыть" (вписана в общую композицию) */}
+            {/* 3. Кнопка "Открыть" */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -122,7 +118,7 @@ const LandingPage = ({ onOpenInvitation }) => {
           </div>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.section>
   );
 };
 

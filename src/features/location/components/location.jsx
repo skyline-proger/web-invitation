@@ -9,7 +9,8 @@ export default function Location() {
   return (
     <>
       {/* Location section */}
-      <section id="location" className="min-h-screen relative overflow-hidden">
+      {/* ADDED: bg-white to act as a solid curtain, and z-10 to stay on top */}
+      <section id="location" className="min-h-screen relative overflow-hidden bg-white z-10">
         <div className="container mx-auto px-4 py-20 relative z-10">
           {/* Section Header */}
           <motion.div
@@ -24,7 +25,6 @@ export default function Location() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               viewport={{ once: true }}
-              // Заменили text-rose-500 на text-primary (черный)
               className="inline-block text-primary font-medium uppercase tracking-widest text-sm"
             >
               Іс-Әрекеттің Орны
@@ -48,9 +48,7 @@ export default function Location() {
               viewport={{ once: true }}
               className="flex items-center justify-center gap-4 pt-4"
             >
-              {/* Заменили bg-rose-200 на bg-border */}
               <div className="h-[1px] w-12 bg-border" />
-              {/* Иконка теперь text-primary */}
               <MapPin className="w-5 h-5 text-primary" />
               <div className="h-[1px] w-12 bg-border" />
             </motion.div>
@@ -64,7 +62,6 @@ export default function Location() {
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              // Поменяли границу на border и добавили легкий фон
               className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg border-4 border-border bg-muted"
             >
               <iframe
@@ -87,7 +84,6 @@ export default function Location() {
               viewport={{ once: true }}
               className="space-y-6"
             >
-              {/* Карточка теперь bg-background с нашей границей */}
               <div className="bg-background rounded-2xl p-8 shadow-sm border border-border">
                 <h3 className="text-2xl font-serif text-foreground mb-6 uppercase tracking-tight">
                   {config.location}
@@ -95,7 +91,6 @@ export default function Location() {
 
                 <div className="space-y-4">
                   <div className="flex items-start space-x-4">
-                    {/* Все иконки в text-primary */}
                     <MapPin className="w-5 h-5 text-primary mt-1" />
                     <p className="text-muted-foreground flex-1">{config.address}</p>
                   </div>
@@ -121,7 +116,6 @@ export default function Location() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       viewport={{ once: true }}
-                      // Кнопка в стиле аутлайн: белая с черной границей
                       className="w-full flex items-center justify-center gap-1.5 bg-background text-primary px-4 py-3 rounded-lg border border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-sm font-bold uppercase tracking-widest"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />

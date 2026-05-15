@@ -65,37 +65,50 @@
     overflow-x: hidden;
   }
 
-  body {
-    margin: 0 !important;
-    padding: 0 !important;
+  /* The fixed background layer */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100vw;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: auto;
-    @apply bg-background text-foreground;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 0.5s ease-in-out; /* Smooth fade between images */
+    z-index: -1;
   }
 
+  /* Background Themes */
+  body.theme-hero::before {
+    background-image: url('/images/hero_bg.jpg');
+  }
+
+  body.theme-landing::before {
+    background-image: url('/images/landing_bg.jpg');
+  }
+
+  body.theme-wishes::before {
+    background-image: url('/images/wishes_bg.png');
+  }
+  /* NEW: Sections that should be solid white */
+  body.theme-location::before { 
+    background-image: none; /* Turn off the image */
+    background-color: #ffffff; /* Make the fixed background white */
+  }
   #root {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     width: 100vw;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    background-image: url("/images/background.png");
-    background-position: center top;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: scroll;
+    /* Removed background properties from here */
   }
-
-  * {
-    @apply border-border;
-    outline: none !important;
-    -webkit-tap-highlight-color: transparent;
+    * {
+      @apply border-border;
+      outline: none !important;
+      -webkit-tap-highlight-color: transparent;
+    }
   }
-}
 
 .inverted-section {
   --background: 0 0% 0%; 

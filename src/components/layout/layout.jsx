@@ -24,9 +24,13 @@ const Layout = ({ children, audioControls }) => {
   }, [isPlaying, config.audio?.toastDuration]);
 
   return (
-    <div className="relative min-h-screen w-full bg-secondary flex items-center justify-center">
+    /* REMOVED: bg-secondary. Added bg-transparent */
+    <div className="relative min-h-screen w-full bg-transparent flex items-center justify-center">
       <motion.div
-        className="mx-auto w-full max-w-[430px] min-h-screen bg-background relative overflow-visible border border-border shadow-lg"
+        /* REMOVED: bg-background. Added bg-transparent */
+        /* KEPT: max-w-[430px] and shadows to keep that "mobile card" feel if you want it, 
+           but you might want to remove 'shadow-lg' and 'border' if you want a true full-screen look. */
+        className="mx-auto w-full max-w-[430px] min-h-screen bg-transparent relative overflow-visible"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -51,7 +55,8 @@ const Layout = ({ children, audioControls }) => {
           </motion.button>
         )}
 
-        <main className="relative h-full w-full">{children}</main>
+        {/* MAIN CONTENT: Ensure this is also transparent */}
+        <main className="relative h-full w-full bg-transparent">{children}</main>
         
         <BottomBar />
 
@@ -64,7 +69,7 @@ const Layout = ({ children, audioControls }) => {
               transition={{ duration: 0.3 }}
               className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50"
             >
-              <div className="bg-primary text-primary-foreground transform -translate-x-1/2 px-4 py-2 rounded-full backdrop-blur-sm flex items-center space-x-2 shadow-lg">
+              <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full backdrop-blur-sm flex items-center space-x-2 shadow-lg">
                 <Music className="w-4 h-4 animate-pulse" />
                 <span className="text-sm whitespace-nowrap">
                   {config.audio?.title || "Фонды өнер"}

@@ -1,5 +1,4 @@
-// src/App.jsx
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Heart } from "lucide-react";
@@ -7,7 +6,7 @@ import { useInvitation } from "@/features/invitation";
 import { useAudio } from "@/hooks/use-audio";
 import staticConfig from "@/config/config";
 
-// Lazy load components for better performance
+// Lazy load components
 const Layout = lazy(() => import("@/components/layout/layout"));
 const MainContent = lazy(
   () => import("@/features/invitation/components/main-content"),
@@ -27,6 +26,48 @@ function App() {
     loop: activeConfig?.audio?.loop !== false,
   });
 
+  // --- BACKGROUND THEME MANAGER ---
+  useEffect(() => {
+    // 1. If the invitation isn't open, strictly show the landing theme
+    if (!isInvitationOpen) {
+      document.body.className = "theme-landing";
+      return;
+    }
+
+    // 2. Setup observer to switch themes based on which section is visible
+    const observerOptions = {
+      root: null,
+      threshold: 0.5, // Change theme when 50% of section is visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.target.id) {
+          // Clean classes and apply the new theme based on section ID
+          document.body.classList.remove(
+            "theme-landing",
+            "theme-hero",
+            "theme-wishes",
+            "theme-events",
+            "theme-location"
+          );
+          document.body.classList.add(`theme-${entry.target.id}`);
+        }
+      });
+    }, observerOptions);
+
+    // Small delay to ensure MainContent components are rendered before observing
+    const timeoutId = setTimeout(() => {
+      const sections = document.querySelectorAll("section");
+      sections.forEach((section) => observer.observe(section));
+    }, 500);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeoutId);
+    };
+  }, [isInvitationOpen]);
+
   const handleOpenInvitation = async () => {
     await audioControls.play();
     setIsInvitationOpen(true);
@@ -34,15 +75,12 @@ function App() {
 
   if (isLoading) {
     return (
-      // ЗАМЕНИЛИ РОЗОВЫЙ ФОН НА БАЗОВЫЙ: bg-background
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          {/* ЗАМЕНИЛИ text-rose-500 НА text-primary (будет черным) */}
           <Heart
             className="h-12 w-12 text-primary mx-auto mb-4 animate-pulse"
             fill="currentColor"
           />
-          {/* ЗАМЕНИЛИ text-gray-600 НА text-muted-foreground */}
           <p className="text-muted-foreground">Шақыру құжаты жүктелуде...</p>
         </div>
       </div>
@@ -91,7 +129,6 @@ function App() {
         <meta property="twitter:image" content={activeConfig.ogImage} />
         <link rel="icon" type="image/x-icon" href={activeConfig.favicon} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0 viewport-fit=cover" />
-        {/* Поменял theme-color на белый (для мобильных браузеров) */}
         <meta name="theme-color" content="#ffffff" />
       </Helmet>
 
@@ -110,9 +147,9 @@ function App() {
       >
         <AnimatePresence mode="wait">
           {!isInvitationOpen ? (
-            <LandingPage onOpenInvitation={handleOpenInvitation} />
+            <LandingPage key="landing" onOpenInvitation={handleOpenInvitation} />
           ) : (
-            <Layout audioControls={audioControls}>
+            <Layout key="main" audioControls={audioControls}>
               <MainContent />
             </Layout>
           )}
@@ -120,7 +157,6 @@ function App() {
       </Suspense>
     </HelmetProvider>
   );
-  
 }
 
 export default App;

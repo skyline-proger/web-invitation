@@ -149,30 +149,13 @@ export default function Wishes() {
     <>
       <section 
         id="wishes" 
-        className="min-h-screen w-screen left-1/2 -translate-x-1/2 relative overflow-hidden flex flex-col items-center justify-center py-20"
+        className="min-h-screen w-screen left-1/2 -translate-x-1/2 relative overflow-hidden flex flex-col items-center justify-center py-20 bg-transparent"
       >
-        <div 
-            className="absolute inset-0 z-0 pointer-events-none"
-            style={{ clipPath: 'inset(0 0 0 0)' }}
-          >
-            <div 
-              className="absolute inset-0"
-              style={{
-                backgroundImage: 'url("/images/wishes_bg.png")',
-                backgroundPosition: 'center',
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat',
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                transform: 'translateZ(0)',
-                willChange: 'transform'
-              }}
-            />
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
-        </div>
+        {/* 
+          REMOVED: The complex inline background image div.
+          KEPT: Just the dark overlay so text stays readable over the body background.
+        */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] pointer-events-none -z-10" />
 
         {showConfetti && (
           <div className="fixed inset-0 z-[100] pointer-events-none">
@@ -353,8 +336,9 @@ export default function Wishes() {
           </motion.div>
         </div>
       </section>
-{/* Footer Section */}
-      <footer className="w-screen left-1/2 -translate-x-1/2 relative z-10 bg-black py-8 pb-32 flex flex-col items-center justify-center border-t border-white/5">
+      
+      {/* Footer Section - Now transparent so it floats over the bg */}
+      <footer className="w-screen left-1/2 -translate-x-1/2 relative z-10 bg-black/60 backdrop-blur-sm py-8 pb-32 flex flex-col items-center justify-center border-t border-white/5">
         <div className="flex items-center gap-3 mb-3">
           <div className="h-[1px] w-12 bg-gradient-to-r from-transparent to-white/10" />
           <span className="text-[10px] uppercase tracking-[0.5em] text-white/20 font-light">
