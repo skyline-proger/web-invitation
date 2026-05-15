@@ -42,7 +42,7 @@ function App() {
       root: null,
       // The 150px margin triggers the background swap BEFORE the section fully enters,
       // hiding the image change behind your solid white sections.
-      rootMargin: "150px 0px 150px 0px", 
+      rootMargin: "300px 0px 300px 0px", 
       threshold: 0, 
     };
 
