@@ -125,6 +125,16 @@ function App() {
       </div>
     );
   }
+    // If they are on the root and we don't have a UID, 
+  // you can force them somewhere else or show a custom "Welcome"
+  if (window.location.pathname === "/" && !isLoading && !activeConfig) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white text-center p-6">
+        <h1 className="text-2xl font-serif">MyShaqury.kz</h1>
+        <p className="text-muted-foreground mt-2">Платформа жақында ашылады...</p>
+      </div>
+    );
+  }
 
   return (
     <HelmetProvider>
