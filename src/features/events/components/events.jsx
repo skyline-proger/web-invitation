@@ -12,7 +12,7 @@ export default function Events() {
         This turns the entire section into a solid white/theme curtain 
         so the background images swap invisibly behind it!
       */}
-      <section id="event" className="relative w-screen left-1/2 -translate-x-1/2 bg-background z-10">
+      <section id="event" className="inverted-section relative w-screen left-1/2 -translate-x-1/2 bg-background z-10">
         <div className="min-h-screen w-screen relative overflow-hidden">
           
           <motion.div
