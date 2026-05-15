@@ -8,18 +8,17 @@ const LandingPage = ({ onOpenInvitation }) => {
 
   return (
     <motion.section
-      // 1. ADDED ID: This matches the 'theme-landing' in your CSS
-      id="landing" 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      // 2. CLEANED CLASSES: Removed inline background styles
-      className="min-h-screen relative overflow-hidden flex items-center justify-center bg-transparent"
-    >
-      {/* 
-          REMOVED: The inline style={{ backgroundImage: ... }} 
-          The body::before in index.css now handles this image.
-      */}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="min-h-screen relative overflow-hidden flex items-center justify-center"
+          style={{
+            backgroundImage: "url('/images/landing_bg.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            /* No fixed attachment needed since it doesn't scroll! */
+          }}
+        >
 
       {/* ЕДИНАЯ ПАНОРАМНАЯ ЛЕНТА */}
       <motion.div

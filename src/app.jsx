@@ -28,14 +28,14 @@ function App() {
 
   // --- BACKGROUND THEME MANAGER ---
   useEffect(() => {
-    // 1. If the invitation isn't open, strictly show the landing theme
+    // 1. If on Landing Page, ensure no global background themes are active
     if (!isInvitationOpen) {
-      document.body.className = "theme-landing";
+      document.body.classList.remove("theme-hero", "theme-wishes");
       return;
     }
 
-    // 2. Only watch the sections that ACTUALLY have background images
-    const bgSections = ["landing", "hero", "wishes"];
+    // 2. ONLY watch the Main Content sections that need the fixed background
+    const bgSections = ["hero", "wishes"];
 
     // 3. Setup observer to switch themes invisibly behind the white sections
     const observerOptions = {
@@ -51,7 +51,7 @@ function App() {
         // Only swap if the section is one of our designated background sections
         if (entry.isIntersecting && bgSections.includes(entry.target.id)) {
           // Clean previous background classes
-          document.body.classList.remove("theme-landing", "theme-hero", "theme-wishes");
+          document.body.classList.remove("theme-hero", "theme-wishes");
           // Apply the newly triggered theme
           document.body.classList.add(`theme-${entry.target.id}`);
         }

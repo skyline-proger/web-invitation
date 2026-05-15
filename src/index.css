@@ -84,10 +84,6 @@
     background-image: url('/images/hero_bg.jpg');
   }
 
-  body.theme-landing::before {
-    background-image: url('/images/landing_bg.jpg');
-  }
-
   body.theme-wishes::before {
     background-image: url('/images/wishes_bg.png');
   }
