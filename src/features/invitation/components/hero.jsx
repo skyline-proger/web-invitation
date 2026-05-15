@@ -1,19 +1,41 @@
 import { Calendar, Clock, Heart } from "lucide-react";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 import { formatEventDate } from "@/lib/format-event-date";
 import { getGuestName } from "@/lib/invitation-storage";
 
 export default function Hero() {
-  const config = useConfig(); 
+  const config = useConfig();
   const [guestName, setGuestName] = useState("");
+  const [backgroundOffset, setBackgroundOffset] = useState(0);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
     const storedGuestName = getGuestName();
     if (storedGuestName) {
       setGuestName(storedGuestName);
     }
+  }, []);
+
+  useEffect(() => {
+    // iOS / touch: parallax translateY pulls the bg up inside overflow-hidden and
+    // exposes a gap at the bottom; coarse pointers also rarely benefit from it.
+    const skipParallax =
+      typeof window === "undefined" ||
+      window.matchMedia("(pointer: coarse)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (skipParallax) return;
+
+    const handleScroll = () => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const offset = rect.top * 0.5;
+        setBackgroundOffset(offset);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const CountdownTimer = ({ targetDate }) => {
@@ -55,7 +77,9 @@ export default function Hero() {
             <span className="text-xl sm:text-2xl font-bold text-primary">
               {timeLeft[interval]}
             </span>
-            <span className="text-xs text-muted-foreground capitalize">{interval}</span>
+            <span className="text-xs text-muted-foreground capitalize">
+              {interval}
+            </span>
           </motion.div>
         ))}
       </div>
@@ -122,15 +146,22 @@ export default function Hero() {
   return (
     <>
       <section
+        ref={sectionRef}
         id="home"
-        className="min-h-screen flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden"
-        style={{
-          backgroundImage: "url('/images/hero_bg.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
+        className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center px-4 py-16 sm:py-20 text-center relative overflow-hidden"
       >
+        <motion.div
+          style={{ y: backgroundOffset }}
+          className="absolute inset-0 pointer-events-none"
+          role="presentation"
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: "url('/images/hero_bg.jpg')",
+            }}
+          />
+        </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
