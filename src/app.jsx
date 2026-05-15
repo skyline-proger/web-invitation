@@ -37,7 +37,7 @@ function App() {
     // 2. Setup observer to switch themes based on which section is visible
     const observerOptions = {
       root: null,
-      threshold: 0.5, // Change theme when 50% of section is visible
+      threshold: 0, // Change theme when 0% section is visible
     };
 
     const observer = new IntersectionObserver((entries) => {
