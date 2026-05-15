@@ -8,19 +8,13 @@ export default function Events() {
 
   return (
     <>
-      <section id="event" className="relative w-screen left-1/2 -translate-x-1/2">
-        {/* Анимированный фон, который плавно перетекает в черный */}
-        <motion.div
-    // Вместо переменных используем HEX-коды для анимации
-        initial={{ backgroundColor: "var(--background)" }}
-        whileInView={{ backgroundColor: "#000000" }} // Явный черный для инверсии
-        viewport={{ once: false, amount: 0.1 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-          className="inverted-section min-h-screen w-screen relative overflow-hidden"
-        >
-          {/* Декоративный градиент сверху для мягкого перехода */}
-          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-background to-transparent opacity-100 z-20" />
-
+      {/* ADDED: bg-background and z-10 
+        This turns the entire section into a solid white/theme curtain 
+        so the background images swap invisibly behind it!
+      */}
+      <section id="event" className="relative w-screen left-1/2 -translate-x-1/2 bg-background z-10">
+        <div className="min-h-screen w-screen relative overflow-hidden">
+          
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -56,7 +50,7 @@ export default function Events() {
                 Той Іс-Әрекеттерінің Тізбелеуі
               </motion.h2>
 
-              {/* Decorative Line с анимацией ширины */}
+              {/* Decorative Line */}
               <motion.div
                 initial={{ width: 0, opacity: 0 }}
                 whileInView={{ width: "100%", opacity: 1 }}
@@ -83,10 +77,7 @@ export default function Events() {
               <EventCards events={config.agenda} />
             </motion.div>
           </motion.div>
-
-          {/* Декоративный градиент снизу для возврата к белому */}
-          <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background to-transparent opacity-100 z-20" />
-        </motion.div>
+        </div>
       </section>
     </>
   );
