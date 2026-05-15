@@ -39,6 +39,7 @@ function App() {
 
     const bgSections = ["hero", "wishes"];
 
+    // Setup observer to switch themes invisibly behind the white sections
     const observerOptions = {
       root: null,
       rootMargin: "300px 0px 300px 0px", 
@@ -47,31 +48,45 @@ function App() {
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
+        // Only swap if the section is one of our designated background sections
         if (entry.isIntersecting && bgSections.includes(entry.target.id)) {
+          // Clean previous background classes
           document.body.classList.remove("theme-hero", "theme-wishes");
+          // Apply the newly triggered theme
           document.body.classList.add(`theme-${entry.target.id}`);
         }
       });
     }, observerOptions);
 
-    // SMART FIX: Poll for elements since they are Lazy Loaded
+    // SMART FIX: Poll for specific elements
     let checkInterval;
     
     const startObserving = () => {
-      const sections = document.querySelectorAll("section");
-      // Once the lazy-loaded sections are actually in the DOM, observe them and stop polling
-      if (sections.length > 0) {
-        sections.forEach((section) => observer.observe(section));
+      // Look for our specific target sections by their IDs
+      const heroSection = document.getElementById("hero");
+      const wishesSection = document.getElementById("wishes");
+      
+      // ONLY stop polling when BOTH sections are fully loaded into the DOM
+      if (heroSection && wishesSection) {
+        observer.observe(heroSection);
+        observer.observe(wishesSection);
         clearInterval(checkInterval);
       }
     };
 
-    // Check every 100ms until the components are found
+    // Check every 100ms until both components are securely found
     checkInterval = setInterval(startObserving, 100);
+
+    // Fallback: Stop checking after 10 seconds just to prevent an infinite loop 
+    // in case a page fails to load
+    const timeoutFallback = setTimeout(() => {
+      clearInterval(checkInterval);
+    }, 10000);
 
     return () => {
       observer.disconnect();
       clearInterval(checkInterval);
+      clearTimeout(timeoutFallback);
     };
   }, [isInvitationOpen]);
 
