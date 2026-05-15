@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 
 const baseMenuItems = [
-  { icon: Home, label: "Үй", href: "#home", id: "home" },
+  { icon: Home, label: "Үй", href: "#hero", id: "hero" },
   { icon: CalendarHeart, label: "Іс-әрекет", href: "#event", id: "event" },
   { icon: MapPin, label: "Орны", href: "#location", id: "location" },
   { icon: MessageCircleHeart, label: "Тілек", href: "#wishes", id: "wishes" },
@@ -13,7 +13,7 @@ const baseMenuItems = [
 
 const BottomBar = () => {
   const config = useConfig();
-  const [active, setActive] = React.useState("home");
+  const [active, setActive] = React.useState("hero");
 
   const menuItems = useMemo(() => {
     const hasBanks = config?.banks && config.banks.length > 0;
