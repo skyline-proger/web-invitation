@@ -4,7 +4,6 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Heart } from "lucide-react";
 import { useInvitation } from "@/features/invitation";
 import { useAudio } from "@/hooks/use-audio";
-import staticConfig from "@/config/config";
 
 // Lazy load components
 const Layout = lazy(() => import("@/components/layout/layout"));
@@ -17,29 +16,28 @@ const LandingPage = lazy(
 
 function App() {
   const [isInvitationOpen, setIsInvitationOpen] = useState(false);
-  const { config, isLoading, error } = useInvitation();
+  // 1. Destructure uid from the hook alongside config
+  const { uid, config, isLoading, error } = useInvitation();
 
-  const activeConfig = config || staticConfig.data;
-
+  // 2. Safely initialize audio using dynamic config (hooks must always execute at the top)
   const audioControls = useAudio({
-    src: activeConfig?.audio?.src || "/audio/fulfilling-humming.mp3",
-    loop: activeConfig?.audio?.loop !== false,
+    src: config?.audio?.src || "/audio/fulfilling-humming.mp3",
+    loop: config?.audio?.loop !== false,
   });
 
   // --- BACKGROUND THEME MANAGER ---
   useEffect(() => {
-    // 1. If on Landing Page, ensure no global background themes are active
+    if (!uid) return; // Don't run the observer on the "Coming Soon" page
+
     if (!isInvitationOpen) {
       document.body.classList.remove("theme-hero", "theme-wishes");
       return;
     }
 
-    // INSTANT FIX: Force the hero background immediately so there is never a blank screen
     document.body.classList.add("theme-hero");
 
     const bgSections = ["hero", "wishes"];
 
-    // Setup observer to switch themes invisibly behind the white sections
     const observerOptions = {
       root: null,
       rootMargin: "300px 0px 300px 0px", 
@@ -48,25 +46,19 @@ function App() {
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        // Only swap if the section is one of our designated background sections
         if (entry.isIntersecting && bgSections.includes(entry.target.id)) {
-          // Clean previous background classes
           document.body.classList.remove("theme-hero", "theme-wishes");
-          // Apply the newly triggered theme
           document.body.classList.add(`theme-${entry.target.id}`);
         }
       });
     }, observerOptions);
 
-    // SMART FIX: Poll for specific elements
     let checkInterval;
     
     const startObserving = () => {
-      // Look for our specific target sections by their IDs
       const heroSection = document.getElementById("hero");
       const wishesSection = document.getElementById("wishes");
       
-      // ONLY stop polling when BOTH sections are fully loaded into the DOM
       if (heroSection && wishesSection) {
         observer.observe(heroSection);
         observer.observe(wishesSection);
@@ -74,11 +66,8 @@ function App() {
       }
     };
 
-    // Check every 100ms until both components are securely found
     checkInterval = setInterval(startObserving, 100);
 
-    // Fallback: Stop checking after 10 seconds just to prevent an infinite loop 
-    // in case a page fails to load
     const timeoutFallback = setTimeout(() => {
       clearInterval(checkInterval);
     }, 10000);
@@ -88,13 +77,28 @@ function App() {
       clearInterval(checkInterval);
       clearTimeout(timeoutFallback);
     };
-  }, [isInvitationOpen]);
+  }, [isInvitationOpen, uid]);
 
   const handleOpenInvitation = async () => {
     await audioControls.play();
     setIsInvitationOpen(true);
   };
 
+  // --- EARLY RETURNS ---
+
+  // 1. COMING SOON PAGE (No UID detected in URL or Storage)
+  if (!uid) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-center p-6">
+        <h1 className="text-4xl font-serif mb-4 text-foreground">MyShaqury.kz</h1>
+        <p className="text-muted-foreground tracking-widest uppercase text-sm">
+          Платформа жақында ашылады...
+        </p>
+      </div>
+    );
+  }
+
+  // 2. LOADING STATE
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -109,7 +113,8 @@ function App() {
     );
   }
 
-  if (error) {
+  // 3. ERROR STATE (UID detected, but database fetch failed)
+  if (error || !config) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center max-w-md mx-auto p-6">
@@ -117,7 +122,7 @@ function App() {
           <h1 className="text-2xl font-serif text-foreground mb-2">
             Шақыру Табылмады
           </h1>
-          <p className="text-muted-foreground mb-4">{error}</p>
+          <p className="text-muted-foreground mb-4">{error || "Деректер табылмады"}</p>
           <p className="text-sm text-muted-foreground">
             Өтінем URL-ыңызды тексеріңіз немесе ұйымдастырушыға хабарласыңыз.
           </p>
@@ -125,23 +130,14 @@ function App() {
       </div>
     );
   }
-    // If they are on the root and we don't have a UID, 
-  // you can force them somewhere else or show a custom "Welcome"
-  if (window.location.pathname === "/" && !isLoading && !activeConfig) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white text-center p-6">
-        <h1 className="text-2xl font-serif">MyShaqury.kz</h1>
-        <p className="text-muted-foreground mt-2">Платформа жақында ашылады...</p>
-      </div>
-    );
-  }
 
+  // --- MAIN RENDER (Config is guaranteed to exist here) ---
   return (
     <HelmetProvider>
       <Helmet>
-        <title>{activeConfig.title}</title>
-        <meta name="title" content={activeConfig.title} />
-        <meta name="description" content={activeConfig.description} />
+        <title>{config.title}</title>
+        <meta name="title" content={config.title} />
+        <meta name="description" content={config.description} />
         <meta name="robots" content="noindex, nofollow, noarchive, nocache" />
         <meta name="googlebot" content="noindex, nofollow, noarchive" />
         <meta name="bingbot" content="noindex, nofollow, noarchive" />
@@ -151,15 +147,15 @@ function App() {
         <meta httpEquiv="Expires" content="0" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
-        <meta property="og:title" content={activeConfig.title} />
-        <meta property="og:description" content={activeConfig.description} />
-        <meta property="og:image" content={activeConfig.ogImage} />
+        <meta property="og:title" content={config.title} />
+        <meta property="og:description" content={config.description} />
+        <meta property="og:image" content={config.ogImage} />
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content={window.location.href} />
-        <meta property="twitter:title" content={activeConfig.title} />
-        <meta property="twitter:description" content={activeConfig.description} />
-        <meta property="twitter:image" content={activeConfig.ogImage} />
-        <link rel="icon" type="image/x-icon" href={activeConfig.favicon} />
+        <meta property="twitter:title" content={config.title} />
+        <meta property="twitter:description" content={config.description} />
+        <meta property="twitter:image" content={config.ogImage} />
+        <link rel="icon" type="image/x-icon" href={config.favicon} />
         <meta name="viewport" content="width=device-width, initial-scale=1.0 viewport-fit=cover" />
         <meta name="theme-color" content="#ffffff" />
       </Helmet>
