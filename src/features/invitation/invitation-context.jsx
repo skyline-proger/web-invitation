@@ -30,7 +30,7 @@ const InvitationContext = createContext(null);
  *
  * @example
  * <InvitationProvider>
- *   <App />
+ * <App />
  * </InvitationProvider>
  */
 export function InvitationProvider({ children }) {
@@ -93,6 +93,7 @@ export function InvitationProvider({ children }) {
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const guestParam = urlParams.get("guest");
+    const uidParam = urlParams.get("uid");
 
     // Store guest name if present (even if different from stored - auto-update)
     if (guestParam) {
@@ -112,16 +113,18 @@ export function InvitationProvider({ children }) {
       }
     }
 
-    // Clean URL if we have UID in path or guest in query params
-    const hasUidInPath = location.pathname !== "/" && location.pathname !== "";
-    const hasGuestParam = urlParams.has("guest");
-    const hasUidParam = urlParams.has("uid");
-
-    if (hasUidInPath || hasGuestParam || hasUidParam) {
-      // Only clean URL if we have data stored
+    // Clean URL ONLY if there are query parameters that need hiding
+    if (urlParams.has("guest") || urlParams.has("uid")) {
       if (hasInvitationData()) {
-        // Use window.history.replaceState for clean URL without reload
-        window.history.replaceState({}, "", "/");
+        
+        // If they used the legacy `?uid=XYZ` on the root domain, promote it to a clean path `/XYZ`
+        let targetPath = location.pathname;
+        if (targetPath === "/" && uidParam) {
+          targetPath = `/${uidParam}`;
+        }
+
+        // Replace state: This updates the URL to the target path and naturally strips the `?` query params
+        window.history.replaceState({}, "", targetPath);
       }
     }
   }, [location.pathname, location.search, navigate]);
